@@ -33,6 +33,11 @@ const resultsWrapper = document.querySelector('.results');
 const onInput = async (event) => {
     const movies = await fetchData(event.target.value);
     
+    if (!movies.length) {
+        dropdown.classList.remove('is-active');
+        return;
+    }
+
     resultsWrapper.innerHTML = ''; // Clears the results if a previous search was done!
     dropdown.classList.add('is-active');
     for (let movie of movies) {
@@ -48,3 +53,9 @@ const onInput = async (event) => {
     }
 };
 input.addEventListener('input', debounce(onInput, 500));
+
+document.addEventListener('click', event => {
+    if (!root.contains(event.target)) {
+        dropdown.classList.remove('is-active');
+    } // this is a trick-y way to see if the user click anywhere BUT the dropdown of search results
+});
