@@ -10,6 +10,16 @@ const fetchData = async (searchTerm) => {
 };
 
 const input = document.querySelector('input');
-input.addEventListener('input', (event) => {
-    fetchData(event.target.value);
-});
+
+let timeoutId;
+const onInput = event => {
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+            // This magic piece of code will always reset the setTimeout as a user keeps pressing their keys on the search input!
+    }
+    timeoutId = setTimeout(() => {
+        fetchData(event.target.value);
+    }, 500);
+};
+
+input.addEventListener('input', onInput);
