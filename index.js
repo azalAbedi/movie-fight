@@ -71,7 +71,27 @@ const onMovieSelect = async movie => {
             apikey: 'b2fd1c5d',
             i: movie.imdbID
         }
-    });
+    });  
 
-    
+    document.querySelector('#summary').innerHTML = movieTemplate(response.data);
+        // Pass in the full movie details where the function below will pull from and create HTML elements for them!
+};
+
+const movieTemplate = movieDetail => {
+    return `
+    <article class="media">
+        <figure class="media-left">
+            <p class="image">
+                <img src="${movieDetail.Poster}" />
+            </p>
+        </figure>
+        <div class="media-content">
+            <div class="content">
+                <h2>${movieDetail.Title}</h2>
+                <h4>${movieDetail.Genre}</h4>
+                <p>${movieDetail.Plot}</p>
+            </div>
+        </div>
+    </article>
+    `;
 };
