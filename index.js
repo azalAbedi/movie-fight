@@ -30,7 +30,7 @@ createAutoComplete({
     root: document.querySelector('#left-autocomplete'),
     onOptionSelect(movie) {
         document.querySelector('.tutorial').classList.add('is-hidden');
-        onMovieSelect(movie, document.querySelector('#left-summary'));
+        onMovieSelect(movie, document.querySelector('#left-summary'), 'left');
     }
 });
 createAutoComplete({ // Now, we just make another one for the right side!
@@ -38,11 +38,13 @@ createAutoComplete({ // Now, we just make another one for the right side!
     root: document.querySelector('#right-autocomplete'),
     onOptionSelect(movie) {
         document.querySelector('.tutorial').classList.add('is-hidden');
-        onMovieSelect(movie, document.querySelector('#right-summary'));
+        onMovieSelect(movie, document.querySelector('#right-summary'), 'right');
     }
 });
 
-const onMovieSelect = async (movie, summaryElement) => {
+let leftMovie;
+let rightMovie;
+const onMovieSelect = async (movie, summaryElement, side) => {
     const response = await axios.get('http://www.omdbapi.com/', {
         params: {
             apikey: 'b2fd1c5d',
@@ -52,9 +54,44 @@ const onMovieSelect = async (movie, summaryElement) => {
 
     summaryElement.innerHTML = movieTemplate(response.data);
         // Pass in the full movie details where the function below will pull from and create HTML elements for them!
+
+    if (side === 'left') {
+        leftMovie = response.data;
+    } else {
+        rightMovie = response.data;
+    }
+
+    if (leftMovie && rightMovie) {
+        runComparison();
+    }
+};
+
+const runComparison = () => {
+    console.log('Compare time!'); // FINISH this next!
 };
 
 const movieTemplate = movieDetail => {
+    // Parsing all the comparison data and turning them into numbers!
+        /* IDEA for FUTURE Improvement -- try and give different values for the awards
+            - Oscar win = 2 pts
+            - Oscar nomination = 1 pt
+            - All other nominations = 0.5 pts
+        */
+    const dollars = parseInt(movieDetail.BoxOffice
+        .replace(/\$/g, '')
+        .replace(/,/g, ''));
+    const metascore = parseInt(movieDetail.Metascore);
+    const imdbRating = parseFloat(movieDetail.imdbRating);
+    const imdbVotes = parseInt(movieDetail.imdbVotes.replace(/,/g, ''));
+    const awards = movieDetail.Awards.split(' ').reduce((prev, word) => {
+        const value = parseInt(word);
+        if (isNaN(value)) {
+            return prev;
+        } else {
+            return prev + value;
+        }
+    }, 0); // Switched from forEach approach to .reduce()
+
     return `
     <article class="media">
         <figure class="media-left">
@@ -70,23 +107,23 @@ const movieTemplate = movieDetail => {
             </div>
         </div>
     </article>
-    <article class="notification is-primary">
+    <article data-value="${awards}" class="notification is-primary">
         <p class="title">${movieDetail.Awards}</p>
         <p class="subtitle">Awards</p>
     </article>
-    <article class="notification is-primary">
+    <article data-value="${dollars}" class="notification is-primary">
         <p class="title">${movieDetail.BoxOffice}</p>
         <p class="subtitle">Box Office</p>
     </article>
-    <article class="notification is-primary">
+    <article data-value="${metascore}" class="notification is-primary">
         <p class="title">${movieDetail.Metascore}</p>
         <p class="subtitle">Metascore</p>
     </article>
-    <article class="notification is-primary">
+    <article data-value="${imdbRating}" class="notification is-primary">
         <p class="title">${movieDetail.imdbRating}</p>
         <p class="subtitle">IMDb Rating</p>
     </article>
-    <article class="notification is-primary">
+    <article data-value="${imdbVotes}" class="notification is-primary">
         <p class="title">${movieDetail.imdbVotes}</p>
         <p class="subtitle">IMDb Votes</p>
     </article>
