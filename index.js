@@ -48,6 +48,11 @@ const onInput = async (event) => {
             <img src="${imgSrc}" />
             ${movie.Title}
         `;
+        option.addEventListener('click', () => {
+            dropdown.classList.remove('is-active');
+            input.value = movie.Title; // we can still access 'movie' because of CLOSURE
+            onMovieSelect(movie);
+        });
 
         resultsWrapper.appendChild(option);
     }
@@ -59,3 +64,14 @@ document.addEventListener('click', event => {
         dropdown.classList.remove('is-active');
     } // this is a trick-y way to see if the user click anywhere BUT the dropdown of search results
 });
+
+const onMovieSelect = async movie => {
+    const response = await axios.get('http://www.omdbapi.com/', {
+        params: {
+            apikey: 'b2fd1c5d',
+            i: movie.imdbID
+        }
+    });
+
+    
+};
