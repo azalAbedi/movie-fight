@@ -11,15 +11,21 @@ const fetchData = async (searchTerm) => {
 
 const input = document.querySelector('input');
 
-let timeoutId;
-const onInput = event => {
-    if (timeoutId) {
-        clearTimeout(timeoutId);
-            // This magic piece of code will always reset the setTimeout as a user keeps pressing their keys on the search input!
-    }
-    timeoutId = setTimeout(() => {
-        fetchData(event.target.value);
-    }, 500);
+// This 'debounce' function is a refactor to make the debouncer more re-useable
+const debounce = (func, delay = 1000) => {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+                // This magic piece of code will always reset the setTimeout as a user keeps pressing their keys on the search input!
+        }
+        timeoutId = setTimeout(() => {
+            func.apply(null, args); // .apply() takes the array of arguments from the return above and places them as separate arguments here!
+        }, delay);
+    };
 };
 
-input.addEventListener('input', onInput);
+const onInput = (event) => {
+    fetchData(event.target.value);
+};
+input.addEventListener('input', debounce(onInput, 500));
